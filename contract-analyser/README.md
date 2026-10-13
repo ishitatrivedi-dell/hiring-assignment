@@ -1,16 +1,81 @@
-# React + Vite
+# Clause — Contract Analysis Workspace
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Clause is a legal contract analysis workspace focused on evidence-first answers. It accepts PDF and DOCX uploads, extracts text, stores document metadata locally in the browser, and lets the user ask contract-specific questions while preserving verified quotes from the source text.
 
-Currently, two official plugins are available:
+## What the app does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Accepts PDF and DOCX uploads only
+- Rejects unsupported file types with clear validation errors
+- Extracts plain text from searchable PDFs and DOCX files
+- Detects unreadable scanned PDFs and surfaces a failure instead of reporting success
+- Lists uploaded documents with status, metadata, and delete actions
+- Lets the user ask questions from the contract and streams the answer in the UI
+- Verifies that each supporting quote actually exists in the extracted text before presenting it as genuine
+- Opens the relevant document passage when the user clicks a verified quote
+- Compares two uploaded document versions and highlights likely clause-level differences
+- Uses deterministic retrieval logic and local persistence to keep the workflow working without a server secret or API key
 
-## React Compiler
+## Screenshots
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### Upload and document library
 
-## Expanding the ESLint configuration
+![Upload and document library](./screenshots/upload-view.svg)
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Chat with verified quotes
+
+![Chat with verified quotes](./screenshots/chat-view.svg)
+
+### Document comparison
+
+![Comparison overview](./screenshots/comparison-view.svg)
+
+## How to run locally
+
+1. Open the project folder:
+   ```bash
+   cd contract-analyser
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the dev server:
+   ```bash
+   npm run dev -- --host 0.0.0.0
+   ```
+4. Open the app in your browser:
+   ```text
+   http://localhost:5173/
+   ```
+
+## What is finished
+
+- Premium three-panel contract workspace UI
+- Local upload flow for PDF and DOCX files
+- Real PDF and DOCX text extraction
+- Document processing status and validation states
+- Chat workflow with streaming answer generation
+- Deterministic quote verification using whitespace-normalized matching
+- Citation highlighting by matching the quote back to the page text
+- Clause-level comparison using extracted text segmentation
+- Local persistence in browser storage for reopened sessions
+
+## What is not finished
+
+- No production backend or PostgreSQL persistence
+- No real AI provider integration with a server-side API route
+- No full multi-document agentic research loop or tool-calling model orchestration
+- No deployment to Vercel or Railway yet
+- No full PDF page-to-text anchoring down to exact rendered coordinates for every legal formatting case
+
+## Part C choice: Option 2 — Agentic document research
+
+I selected Option 2 because it is the most realistic fit for a document-analysis assistant: a bounded retrieval loop that decides which clauses to inspect before answering. I implemented the local evidence-first retrieval and quote verification layer, but the full multi-round tool-calling orchestration was intentionally left as the next step because it requires a server-backed AI agent and more robust tool validation than the current local browser prototype.
+
+The hardest part is keeping tool usage deterministic, bounded, and auditable while still preserving evidence. The app therefore uses a controlled retrieval strategy and explicit quote checking rather than trusting free-form model output.
+
+## Limitations and next steps
+
+- The app is designed for local browser use and works best with a single-user contract workflow.
+- Large-document chunk retrieval and semantic search are not yet implemented at the server level.
+- The next practical improvement would be adding a Next.js API layer with a provider-based AI route, persisted SQLite storage, and a bounded tool-calling agent that can search and summarize clauses safely.
